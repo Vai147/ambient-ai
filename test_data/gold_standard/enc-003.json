@@ -1,0 +1,21 @@
+{
+  "id": "enc-003",
+  "soap": {
+    "subjective": "58-year-old female presents with 6 months of right knee pain, worse with morning stiffness lasting ~20 minutes and after prolonged sitting. Reports swelling after prolonged walking and crepitus on knee flexion. No trauma. BMI 32. Family history of knee problems. No joint locking.",
+    "objective": "BMI 32. Periarticular swelling of right knee. ROM 5-110 degrees with pain at end range. Crepitus on passive flexion. Medial joint line tenderness. No ligamentous laxity. X-ray: moderate medial joint space narrowing, osteophyte formation, subchondral sclerosis.",
+    "assessment": {
+      "summary": "Moderate right knee osteoarthritis based on clinical presentation and X-ray findings. Risk factors include obesity and family history.",
+      "icd10_codes": [
+        {"code": "M17.11", "description": "Primary osteoarthritis, right knee"}
+      ]
+    },
+    "plan": {
+      "medications": [
+        {"name": "naproxen", "dose": "500mg", "frequency": "twice daily with food", "duration": "2-4 weeks"},
+        {"name": "acetaminophen", "dose": "500mg", "frequency": "every 6 hours as needed", "duration": null}
+      ],
+      "instructions": "Physical therapy for quadriceps strengthening. Weight loss counseling. Corticosteroid injection consideration if inadequate response to naproxen. Acetaminophen max 3g/day.",
+      "follow_up": "6 weeks to reassess pain control and discuss injection therapy"
+    }
+  }
+}

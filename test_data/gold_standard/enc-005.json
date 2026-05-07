@@ -1,0 +1,23 @@
+{
+  "id": "enc-005",
+  "soap": {
+    "subjective": "Female patient with 5-day illness beginning as URI (sore throat, rhinorrhea) progressing to productive cough with yellow-green sputum, fever to 102.4°F, and pleuritic chest pain. Mild exertional dyspnea. Sick contact with coworker who had pneumonia. Vaccinations: influenza current, no pneumococcal vaccine. Penicillin allergy: rash.",
+    "objective": "Temperature 38.8°C. Heart rate 104. Respiratory rate 20. Blood pressure 118/76. O2 saturation 94% on room air. Auscultation: crackles and decreased breath sounds right lower lobe. CXR: right lower lobe infiltrate. WBC 14,200 with left shift. CURB-65 score 1.",
+    "assessment": {
+      "summary": "Community-acquired pneumonia, right lower lobe, mild severity (CURB-65 1). Penicillin allergy precludes beta-lactam therapy. Outpatient treatment appropriate.",
+      "icd10_codes": [
+        {"code": "J18.1", "description": "Lobar pneumonia, unspecified organism"}
+      ]
+    },
+    "plan": {
+      "medications": [
+        {"name": "azithromycin", "dose": "500mg day 1, then 250mg", "frequency": "daily", "duration": "5 days total"},
+        {"name": "doxycycline", "dose": "100mg", "frequency": "twice daily", "duration": "5 days"},
+        {"name": "acetaminophen", "dose": null, "frequency": "as needed for fever", "duration": null},
+        {"name": "ibuprofen", "dose": null, "frequency": "as needed for fever", "duration": null}
+      ],
+      "instructions": "Monitor O2 saturation at home. Return to ED if SpO2 <92% or clinical deterioration. Adequate hydration and rest. Complete full antibiotic course.",
+      "follow_up": "5-day recheck. Follow-up CXR in 6 weeks to confirm resolution"
+    }
+  }
+}

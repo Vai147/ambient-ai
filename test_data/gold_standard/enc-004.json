@@ -1,0 +1,23 @@
+{
+  "id": "enc-004",
+  "soap": {
+    "subjective": "Male patient with 4 months of panic attacks (palpitations, dyspnea, diaphoresis), occurring 3-4 times per week. Avoidance behavior (highway driving). Precipitating stressor: job loss. Insomnia with ruminative worrying. Past anxiety in college, untreated. No suicidal ideation. No current medications.",
+    "objective": "Alert, oriented. Blood pressure 132/84. Heart rate 94. Thyroid non-tender, no goiter. GAD-7 score 16 (severe). PHQ-9 score 11 (moderate depression). TSH ordered to rule out thyroid etiology.",
+    "assessment": {
+      "summary": "Panic disorder with severe generalized anxiety (GAD-7 16) and comorbid moderate depression (PHQ-9 11). Situational precipitant (job loss). No medical cause identified pending TSH.",
+      "icd10_codes": [
+        {"code": "F41.0", "description": "Panic disorder"},
+        {"code": "F41.1", "description": "Generalized anxiety disorder"},
+        {"code": "F32.1", "description": "Major depressive disorder, single episode, moderate"}
+      ]
+    },
+    "plan": {
+      "medications": [
+        {"name": "sertraline", "dose": "50mg", "frequency": "daily", "duration": null},
+        {"name": "lorazepam", "dose": "0.5mg", "frequency": "as needed, max once daily", "duration": "4 weeks maximum"}
+      ],
+      "instructions": "Sertraline to increase to 100mg after 2 weeks if tolerated. CBT referral for panic disorder. Limit caffeine after noon. 30-minute daily exercise. Avoid alcohol. Lorazepam strictly short-term (max 4 weeks).",
+      "follow_up": "4-week follow-up for medication response and to discontinue lorazepam"
+    }
+  }
+}

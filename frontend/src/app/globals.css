@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", system-ui, sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: oklch(14% 0.01 250);
+  color: oklch(96% 0.005 250);
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .surface {
+    background: oklch(18% 0.01 250);
+  }
+  .surface-overlay {
+    background: oklch(22% 0.015 250);
+  }
+}

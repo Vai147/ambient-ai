@@ -1,0 +1,25 @@
+{
+  "id": "enc-002",
+  "soap": {
+    "subjective": "Patient reports fatigue, polydipsia, polyuria, and 12 lbs unintentional weight loss over the past month. Nocturnal foot tingling and numbness bilaterally. Family history: mother with type 2 diabetes. Diet high in fast food, sedentary lifestyle.",
+    "objective": "BMI 34. Blood pressure 142/88. Finger stick glucose 310. HbA1c 10.2%. Fundoscopic exam reveals early background retinopathy. Monofilament test: decreased sensation bilaterally up to ankle.",
+    "assessment": {
+      "summary": "New diagnosis of type 2 diabetes mellitus with poor glycemic control (A1c 10.2%), complicated by peripheral neuropathy and early retinopathy. Comorbid hypertension.",
+      "icd10_codes": [
+        {"code": "E11.9", "description": "Type 2 diabetes mellitus without complications"},
+        {"code": "E11.40", "description": "Type 2 diabetes mellitus with diabetic neuropathy, unspecified"},
+        {"code": "E11.319", "description": "Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema"},
+        {"code": "I10", "description": "Essential (primary) hypertension"}
+      ]
+    },
+    "plan": {
+      "medications": [
+        {"name": "metformin", "dose": "500mg", "frequency": "twice daily with meals", "duration": null},
+        {"name": "glipizide", "dose": "5mg", "frequency": "daily with breakfast", "duration": null},
+        {"name": "gabapentin", "dose": "300mg", "frequency": "at bedtime", "duration": null}
+      ],
+      "instructions": "Monitor glucose before meals and at bedtime. Target fasting glucose 80-130. Daily foot inspection. Referral to ophthalmology, diabetes educator, and dietitian. Urine microalbumin ordered.",
+      "follow_up": "3-month follow-up for A1c recheck and medication titration"
+    }
+  }
+}

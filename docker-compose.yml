@@ -1,0 +1,132 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ambient_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ambient}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ambient_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-ambient_scribe}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ambient}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ambient_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  hapi-fhir:
+    image: hapiproject/hapi:latest
+    container_name: ambient_hapi_fhir
+    ports:
+      - "8080:8080"
+    environment:
+      hapi.fhir.fhir_version: R4
+      hapi.fhir.allow_external_references: "true"
+      hapi.fhir.allow_multiple_delete: "true"
+    volumes:
+      - hapi_data:/data/hapi
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/fhir/metadata || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ambient_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ambient}:${POSTGRES_PASSWORD:-ambient_dev}@postgres:5432/${POSTGRES_DB:-ambient_scribe}
+      REDIS_URL: redis://redis:6379/0
+      HAPI_FHIR_URL: http://hapi-fhir:8080/fhir
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_change_in_prod}
+      CORS_ORIGINS: http://localhost:3000
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      AUDIO_STORAGE_PATH: /data/audio
+    volumes:
+      - ./backend:/app
+      - audio_data:/data/audio
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ambient_celery
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ambient}:${POSTGRES_PASSWORD:-ambient_dev}@postgres:5432/${POSTGRES_DB:-ambient_scribe}
+      REDIS_URL: redis://redis:6379/0
+      HAPI_FHIR_URL: http://hapi-fhir:8080/fhir
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_change_in_prod}
+      CORS_ORIGINS: http://localhost:3000
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      AUDIO_STORAGE_PATH: /data/audio
+    volumes:
+      - ./backend:/app
+      - audio_data:/data/audio
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.tasks.worker worker --loglevel=info --concurrency=2
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ambient_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_APP_ENV: ${ENVIRONMENT:-development}
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: npm run dev -- --hostname 0.0.0.0
+
+volumes:
+  postgres_data:
+  redis_data:
+  hapi_data:
+  audio_data:

@@ -1,0 +1,23 @@
+{
+  "id": "enc-001",
+  "soap": {
+    "subjective": "Patient reports chest tightness and shortness of breath for 3 days, worsening with exertion (stair climbing). Describes a pressure sensation in the center of the chest. No radiation to arm or jaw. Mild cough without sputum. PMH: hypertension diagnosed 2 years ago. Current medications: lisinopril 10mg daily.",
+    "objective": "Heart rate 88, regular rhythm. Blood pressure 148/92. Oxygen saturation 96% on room air. Lungs clear bilaterally. Mild accessory muscle use noted. EKG and labs ordered.",
+    "assessment": {
+      "summary": "Stable angina in the setting of uncontrolled hypertension. Differential includes ACS (lower probability given exertional pattern and no rest pain).",
+      "icd10_codes": [
+        {"code": "I20.9", "description": "Angina pectoris, unspecified"},
+        {"code": "I10", "description": "Essential (primary) hypertension"}
+      ]
+    },
+    "plan": {
+      "medications": [
+        {"name": "aspirin", "dose": "81mg", "frequency": "daily", "duration": null},
+        {"name": "amlodipine", "dose": "5mg", "frequency": "daily", "duration": null},
+        {"name": "lisinopril", "dose": "10mg", "frequency": "daily", "duration": null}
+      ],
+      "instructions": "Avoid strenuous activity until stress test. Return to ER for chest pain at rest or worsening symptoms.",
+      "follow_up": "Stress test within 2 weeks"
+    }
+  }
+}
