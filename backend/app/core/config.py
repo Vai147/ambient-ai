@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import model_validator
 
 
 class Settings(BaseSettings):
@@ -11,6 +12,16 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = "postgresql+asyncpg://ambient:ambient_dev@localhost:5432/ambient_scribe"
+
+    @model_validator(mode="after")
+    def _ensure_async_pg_url(self) -> "Settings":
+        """Rewrite postgresql:// to postgresql+asyncpg:// for SQLAlchemy async engine."""
+        url = self.database_url
+        if url.startswith("postgresql://"):
+            self.database_url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgres://"):
+            self.database_url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        return self
 
     # Redis / Celery
     redis_url: str = "redis://localhost:6379/0"
