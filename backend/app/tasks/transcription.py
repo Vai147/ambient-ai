@@ -38,10 +38,12 @@ async def _run_transcription(session_id: str) -> dict:
         # Segment-level timestamps only — speaker_turns below uses seg
         # start/end/text. word_timestamps adds a costly alignment pass we
         # don't consume, so leave it off to keep CPU transcription fast.
-        whisper_result = model.transcribe(
-            session.audio_file_path,
-            verbose=False,
-        )
+        # Force language when set to avoid mis-detection + hallucination on
+        # short clips (empty string = auto-detect).
+        transcribe_opts: dict = {"verbose": False}
+        if settings.whisper_language:
+            transcribe_opts["language"] = settings.whisper_language
+        whisper_result = model.transcribe(session.audio_file_path, **transcribe_opts)
 
         full_text: str = whisper_result.get("text", "").strip()
         segments: list = whisper_result.get("segments", [])

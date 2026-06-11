@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     # Transcription — Whisper model size (tiny/base/small/medium/large).
     # "base" balances speed/memory for CPU; "medium" needs ~5GB RAM.
     whisper_model: str = "base"
+    # Force transcription language to avoid mis-detection + hallucination
+    # on short clips. Empty string = let Whisper auto-detect.
+    whisper_language: str = "en"
 
     # FHIR
     hapi_fhir_url: str = "http://localhost:8080/fhir"
