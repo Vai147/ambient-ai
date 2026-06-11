@@ -7,7 +7,7 @@ class TranscriptResponse(BaseModel):
     id: str
     session_id: str
     content: str
-    speaker_turns: dict
+    speaker_turns: list[dict]
     whisper_model: str
     created_at: datetime
 
