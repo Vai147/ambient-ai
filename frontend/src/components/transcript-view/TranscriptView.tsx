@@ -1,6 +1,7 @@
 "use client";
 
 import type { TranscriptResponse } from "@/lib/api";
+import { Card } from "@/components/ui/Card";
 
 interface TranscriptViewProps {
   transcript: TranscriptResponse;
@@ -23,84 +24,109 @@ export function TranscriptView({ transcript }: TranscriptViewProps) {
   const hasTurns = Array.isArray(turns) && turns.length > 0;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <h2
-          className="text-sm font-semibold uppercase tracking-wider"
-          style={{ color: "oklch(65% 0.01 250)" }}
+          style={{
+            margin: 0,
+            fontSize: "var(--text-sm)",
+            fontWeight: "var(--weight-semibold)",
+            textTransform: "uppercase",
+            letterSpacing: "var(--tracking-wide)",
+            color: "var(--text-secondary)",
+          }}
         >
           Transcript
         </h2>
-        <span
-          className="text-xs"
-          style={{ color: "oklch(55% 0.01 250)" }}
-        >
-          {transcript.content.length} chars · {transcript.whisper_model}
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
+          {transcript.content.length.toLocaleString()} chars · {transcript.whisper_model}
         </span>
       </div>
 
-      <div
-        className="rounded-xl overflow-hidden"
-        style={{
-          background: "oklch(18% 0.01 250)",
-          border: "1px solid oklch(96% 0.005 250 / 0.08)",
-        }}
-      >
+      <Card flush>
         {hasTurns ? (
-          <div className="flex flex-col gap-0 divide-y" style={{ borderColor: "oklch(96% 0.005 250 / 0.05)" }}>
-            {turns.map((turn, i) => {
-              const isClinician = turn.speaker === "clinician" || i % 2 === 0;
-              return (
+          turns.map((turn, i) => {
+            const isClinician = turn.speaker === "clinician" || i % 2 === 0;
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  padding: "16px 20px",
+                  background: isClinician ? "transparent" : "oklch(14% 0.01 250 / 0.4)",
+                  borderTop: i > 0 ? "1px solid var(--border-hairline)" : "none",
+                }}
+              >
                 <div
-                  key={i}
-                  className="flex gap-3 px-5 py-4"
                   style={{
-                    background: isClinician ? "transparent" : "oklch(14% 0.01 250 / 0.4)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 4,
+                    paddingTop: 2,
+                    flexShrink: 0,
+                    width: 48,
                   }}
                 >
-                  <div className="flex flex-col items-center gap-1 pt-0.5 shrink-0" style={{ width: 48 }}>
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold"
-                      style={{
-                        background: isClinician
-                          ? "oklch(70% 0.18 195 / 0.15)"
-                          : "oklch(72% 0.18 155 / 0.15)",
-                        color: isClinician
-                          ? "oklch(70% 0.18 195)"
-                          : "oklch(72% 0.18 155)",
-                      }}
-                    >
-                      {isClinician ? "Dr" : "Pt"}
-                    </div>
-                    <span
-                      className="text-xs tabular-nums"
-                      style={{ color: "oklch(45% 0.01 250)" }}
-                    >
-                      {formatTime(turn.start)}
-                    </span>
-                  </div>
-                  <p
-                    className="text-sm leading-relaxed pt-0.5"
-                    style={{ color: "oklch(88% 0.005 250)" }}
+                  <div
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: "var(--radius-full)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "var(--text-xs)",
+                      fontWeight: "var(--weight-semibold)",
+                      background: isClinician ? "var(--accent-subtle)" : "oklch(72% 0.18 155 / 0.15)",
+                      color: isClinician ? "var(--accent)" : "var(--success)",
+                    }}
                   >
-                    {turn.text}
-                  </p>
+                    {isClinician ? "Dr" : "Pt"}
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "var(--text-xs)",
+                      fontFamily: "var(--font-mono)",
+                      fontVariantNumeric: "tabular-nums",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    {formatTime(turn.start)}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+                <p
+                  style={{
+                    margin: 0,
+                    paddingTop: 2,
+                    fontSize: "var(--text-sm)",
+                    lineHeight: "var(--leading-relaxed)",
+                    color: "var(--text-reading)",
+                  }}
+                >
+                  {turn.text}
+                </p>
+              </div>
+            );
+          })
         ) : (
           /* Flat transcript fallback when no speaker turns */
-          <div className="p-5">
+          <div style={{ padding: "20px" }}>
             <p
-              className="text-sm leading-relaxed whitespace-pre-wrap"
-              style={{ color: "oklch(88% 0.005 250)" }}
+              style={{
+                margin: 0,
+                fontSize: "var(--text-sm)",
+                lineHeight: "var(--leading-relaxed)",
+                whiteSpace: "pre-wrap",
+                color: "var(--text-reading)",
+              }}
             >
               {transcript.content}
             </p>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

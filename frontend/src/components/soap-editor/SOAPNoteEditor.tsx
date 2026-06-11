@@ -14,9 +14,9 @@ interface SectionState {
 
 function HallucinationBadge({ risk }: { risk: string }) {
   const colors: Record<string, { text: string; bg: string }> = {
-    low:    { text: "oklch(72% 0.18 155)", bg: "oklch(72% 0.18 155 / 0.1)" },
-    medium: { text: "oklch(78% 0.19 75)",  bg: "oklch(78% 0.19 75 / 0.1)"  },
-    high:   { text: "oklch(75% 0.18 25)",  bg: "oklch(75% 0.18 25 / 0.1)"  },
+    low:    { text: "var(--success)", bg: "var(--success-tint)" },
+    medium: { text: "var(--warning)",  bg: "var(--warning-tint)"  },
+    high:   { text: "var(--danger-text)",  bg: "var(--danger-tint)"  },
   };
   const c = colors[risk] ?? colors.low;
   return (
@@ -39,8 +39,8 @@ function UnverifiedFlag({ item }: { item: string }) {
         onClick={() => setOpen((p) => !p)}
         className="rounded px-1 text-xs font-medium cursor-pointer"
         style={{
-          background: "oklch(78% 0.19 75 / 0.18)",
-          color: "oklch(85% 0.19 75)",
+          background: "var(--warning-flag)",
+          color: "var(--warning-bright)",
           textDecoration: "underline dotted",
         }}
       >
@@ -50,9 +50,9 @@ function UnverifiedFlag({ item }: { item: string }) {
         <span
           className="absolute bottom-full left-0 mb-1.5 z-10 w-56 rounded-lg px-3 py-2 text-xs leading-relaxed shadow-lg"
           style={{
-            background: "oklch(22% 0.01 250)",
-            border: "1px solid oklch(78% 0.19 75 / 0.3)",
-            color: "oklch(85% 0.01 250)",
+            background: "var(--surface-overlay)",
+            border: "1px solid var(--warning-border)",
+            color: "var(--text-reading)",
           }}
         >
           Not found in transcript — verify before approving
@@ -87,11 +87,11 @@ function SectionActionBar({
         background:
           state.action === action
             ? activeColor
-            : "oklch(96% 0.005 250 / 0.06)",
+            : "var(--border-faint)",
         color:
           state.action === action
-            ? "oklch(14% 0.01 250)"
-            : "oklch(65% 0.01 250)",
+            ? "var(--text-on-accent)"
+            : "var(--text-secondary)",
         cursor: locked ? "not-allowed" : "pointer",
         opacity: locked ? 0.5 : 1,
       }}
@@ -102,9 +102,9 @@ function SectionActionBar({
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
-      {btn("Accept", "accept", "oklch(72% 0.18 155)")}
-      {btn("Edit", "edit", "oklch(70% 0.18 195)")}
-      {btn("Reject", "reject", "oklch(75% 0.18 25)")}
+      {btn("Accept", "accept", "var(--success)")}
+      {btn("Edit", "edit", "var(--accent)")}
+      {btn("Reject", "reject", "var(--danger-text)")}
     </div>
   );
 }
@@ -124,13 +124,13 @@ function SectionShell({
     <div
       className="rounded-xl px-5 py-4 flex flex-col gap-3"
       style={{
-        background: "oklch(17% 0.01 250)",
-        border: `1px solid ${locked && lockedColor ? lockedColor + " / 0.35" : "oklch(96% 0.005 250 / 0.06)"}`,
-        transition: "border-color 0.2s",
+        background: "var(--surface-soft)",
+        border: `1px solid ${locked && lockedColor ? "var(--success-border)" : "var(--border-faint)"}`,
+        transition: "border-color var(--duration-normal) var(--ease-in-out)",
       }}
     >
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: "oklch(55% 0.01 250)" }}>
+        <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-tertiary)" }}>
           {title}
         </h3>
         {locked && lockedColor && (
@@ -166,15 +166,15 @@ function TextSection({
     <SectionShell
       title={label}
       locked={isAccepted}
-      lockedColor="oklch(72% 0.18 155)"
+      lockedColor="var(--success)"
     >
       {state.action === "edit" ? (
         <textarea
           className="w-full rounded-lg px-3 py-2.5 text-sm resize-none"
           style={{
-            background: "oklch(20% 0.01 250)",
-            border: "1px solid oklch(70% 0.18 195 / 0.4)",
-            color: "oklch(92% 0.005 250)",
+            background: "var(--surface-overlay)",
+            border: "1px solid var(--accent-border)",
+            color: "var(--text-reading)",
             minHeight: "6rem",
           }}
           value={state.editedText}
@@ -186,8 +186,8 @@ function TextSection({
           className="text-sm leading-relaxed"
           style={{
             color: isRejected
-              ? "oklch(55% 0.01 250)"
-              : "oklch(80% 0.005 250)",
+              ? "var(--text-tertiary)"
+              : "var(--text-body)",
             textDecoration: isRejected ? "line-through" : "none",
           }}
         >
@@ -224,11 +224,11 @@ function AssessmentSection({
   const a = note.assessment;
 
   return (
-    <SectionShell title="Assessment" locked={isAccepted} lockedColor="oklch(72% 0.18 155)">
+    <SectionShell title="Assessment" locked={isAccepted} lockedColor="var(--success)">
       <div
         className="text-sm leading-relaxed space-y-2"
         style={{
-          color: isRejected ? "oklch(55% 0.01 250)" : "oklch(80% 0.005 250)",
+          color: isRejected ? "var(--text-tertiary)" : "var(--text-body)",
           textDecoration: isRejected ? "line-through" : "none",
         }}
       >
@@ -241,7 +241,7 @@ function AssessmentSection({
                 <li key={c.code} className="flex items-center gap-2">
                   <span
                     className="font-mono text-xs px-1.5 py-0.5 rounded"
-                    style={{ background: "oklch(22% 0.01 250)", color: "oklch(70% 0.18 195)" }}
+                    style={{ background: "var(--surface-overlay)", color: "var(--accent)" }}
                   >
                     {c.code}
                   </span>
@@ -279,11 +279,11 @@ function PlanSection({
   const p = note.plan;
 
   return (
-    <SectionShell title="Plan" locked={isAccepted} lockedColor="oklch(72% 0.18 155)">
+    <SectionShell title="Plan" locked={isAccepted} lockedColor="var(--success)">
       <div
         className="text-sm leading-relaxed space-y-2"
         style={{
-          color: isRejected ? "oklch(55% 0.01 250)" : "oklch(80% 0.005 250)",
+          color: isRejected ? "var(--text-tertiary)" : "var(--text-body)",
           textDecoration: isRejected ? "line-through" : "none",
         }}
       >
@@ -291,7 +291,7 @@ function PlanSection({
           <div>
             <span
               className="text-xs font-medium uppercase tracking-wide"
-              style={{ color: "oklch(55% 0.01 250)" }}
+              style={{ color: "var(--text-tertiary)" }}
             >
               Medications
             </span>
@@ -303,7 +303,7 @@ function PlanSection({
                   <li key={m.name}>
                     {flagged ? <UnverifiedFlag item={m.name} /> : <span>{m.name}</span>}
                     {detail && (
-                      <span style={{ color: "oklch(55% 0.01 250)" }}> — {detail}</span>
+                      <span style={{ color: "var(--text-tertiary)" }}> — {detail}</span>
                     )}
                   </li>
                 );
@@ -313,7 +313,7 @@ function PlanSection({
         )}
         {p.instructions && <p>{p.instructions}</p>}
         {p.follow_up && (
-          <p style={{ color: "oklch(65% 0.01 250)" }}>Follow-up: {p.follow_up}</p>
+          <p style={{ color: "var(--text-secondary)" }}>Follow-up: {p.follow_up}</p>
         )}
       </div>
       <SectionActionBar state={state} onChange={onChange} locked={approved} />
@@ -404,13 +404,13 @@ export function SOAPNoteEditor({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold" style={{ color: "oklch(96% 0.005 250)" }}>
+        <h2 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>
           SOAP Note
         </h2>
         <div className="flex items-center gap-2">
           {risk !== "low" && <HallucinationBadge risk={risk} />}
           {isApproved && (
-            <span className="text-xs font-medium" style={{ color: "oklch(72% 0.18 155)" }}>
+            <span className="text-xs font-medium" style={{ color: "var(--success)" }}>
               Approved
             </span>
           )}
@@ -449,15 +449,15 @@ export function SOAPNoteEditor({
       />
 
       {!isApproved && (
-        <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "oklch(96% 0.005 250 / 0.06)" }}>
+        <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "var(--border-faint)" }}>
           <div>
             {mutation.isError && (
-              <p className="text-xs" style={{ color: "oklch(75% 0.18 25)" }}>
+              <p className="text-xs" style={{ color: "var(--danger-text)" }}>
                 {(mutation.error as Error)?.message ?? "Save failed"}
               </p>
             )}
             {approveConfirm && (
-              <p className="text-xs" style={{ color: "oklch(78% 0.19 75)" }}>
+              <p className="text-xs" style={{ color: "var(--warning)" }}>
                 Note contains unverified items. Approve anyway?
               </p>
             )}
@@ -469,8 +469,8 @@ export function SOAPNoteEditor({
               onClick={handleSave}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
               style={{
-                background: anyEdited ? "oklch(96% 0.005 250 / 0.08)" : "oklch(96% 0.005 250 / 0.04)",
-                color: anyEdited ? "oklch(80% 0.005 250)" : "oklch(45% 0.01 250)",
+                background: anyEdited ? "var(--border-subtle)" : "var(--border-hairline)",
+                color: anyEdited ? "var(--text-body)" : "var(--text-muted)",
                 cursor: !anyEdited || mutation.isPending ? "not-allowed" : "pointer",
               }}
             >
@@ -483,9 +483,9 @@ export function SOAPNoteEditor({
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
               style={{
                 background: approveConfirm
-                  ? "oklch(78% 0.19 75)"
-                  : "oklch(72% 0.18 155)",
-                color: "oklch(14% 0.01 250)",
+                  ? "var(--warning)"
+                  : "var(--success)",
+                color: "var(--text-on-accent)",
                 cursor: mutation.isPending ? "not-allowed" : "pointer",
               }}
             >

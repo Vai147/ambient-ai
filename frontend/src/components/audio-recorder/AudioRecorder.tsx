@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob) => void;
@@ -107,26 +109,22 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
   const isStopped = state === "stopped";
 
   return (
-    <div
-      className="rounded-xl p-6 flex flex-col gap-5"
-      style={{
-        background: "oklch(18% 0.01 250)",
-        border: "1px solid oklch(96% 0.005 250 / 0.08)",
-      }}
-    >
+    <Card padding={24} style={{ gap: 20 }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {isRecording && (
             <span
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ background: "oklch(65% 0.22 25)" }}
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "var(--radius-full)",
+                background: "var(--danger)",
+                animation: "as-pulse 2s var(--ease-in-out) infinite",
+              }}
             />
           )}
-          <span
-            className="text-sm font-medium"
-            style={{ color: "oklch(96% 0.005 250)" }}
-          >
+          <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)", color: "var(--text-primary)" }}>
             {isIdle && "Ready to record"}
             {isRecording && "Recording"}
             {isStopped && "Recording complete"}
@@ -135,65 +133,67 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
 
         {(isRecording || isStopped) && (
           <span
-            className="text-sm tabular-nums font-mono"
-            style={{ color: isRecording ? "oklch(70% 0.18 195)" : "oklch(65% 0.01 250)" }}
+            style={{
+              fontSize: "var(--text-sm)",
+              fontFamily: "var(--font-mono)",
+              fontVariantNumeric: "tabular-nums",
+              color: isRecording ? "var(--accent)" : "var(--text-secondary)",
+            }}
           >
             {formatElapsed(elapsed)}
           </span>
         )}
       </div>
 
-      {/* Waveform */}
-      <div
-        className="rounded-lg px-3 py-2 overflow-hidden"
-        style={{ background: "oklch(14% 0.01 250)" }}
-      >
+      {/* Waveform well */}
+      <Card variant="inset" padding={8} style={{ borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
         <WaveformCanvas analyser={isRecording ? analyserNode : null} />
-      </div>
+      </Card>
 
       {/* Controls */}
-      <div className="flex justify-center">
+      <div style={{ display: "flex", justifyContent: "center" }}>
         {isIdle && (
-          <button
+          <Button
+            variant="record"
+            size="lg"
             onClick={start}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all"
-            style={{
-              background: "oklch(65% 0.22 25 / 0.15)",
-              color: "oklch(75% 0.18 25)",
-              border: "1px solid oklch(65% 0.22 25 / 0.3)",
-            }}
+            icon={
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                <circle cx="7" cy="7" r="5" />
+              </svg>
+            }
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-              <circle cx="7" cy="7" r="5" />
-            </svg>
             Start recording
-          </button>
+          </Button>
         )}
 
         {isRecording && (
-          <button
+          <Button
+            variant="record"
+            size="lg"
             onClick={stop}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all"
-            style={{
-              background: "oklch(65% 0.22 25 / 0.15)",
-              color: "oklch(75% 0.18 25)",
-              border: "1px solid oklch(65% 0.22 25 / 0.3)",
-            }}
+            icon={
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                <rect width="12" height="12" rx="2" />
+              </svg>
+            }
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-              <rect width="12" height="12" rx="2" />
-            </svg>
             Stop recording
-          </button>
+          </Button>
         )}
 
         {isStopped && (
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm"
+          <span
             style={{
-              background: "oklch(72% 0.18 155 / 0.1)",
-              color: "oklch(72% 0.18 155)",
-              border: "1px solid oklch(72% 0.18 155 / 0.25)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 16px",
+              borderRadius: "var(--radius-lg)",
+              fontSize: "var(--text-sm)",
+              background: "var(--success-faint)",
+              color: "var(--success)",
+              border: "1px solid var(--success-border)",
             }}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -206,9 +206,9 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
               />
             </svg>
             Audio captured — uploading
-          </div>
+          </span>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
