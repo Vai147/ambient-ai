@@ -5,6 +5,7 @@ celery_app = Celery(
     "ambient_scribe",
     broker=settings.redis_url,
     backend=settings.redis_url,
+    include=["app.tasks.transcription", "app.tasks.note_generation"],
 )
 
 celery_app.conf.update(
@@ -15,6 +16,3 @@ celery_app.conf.update(
     enable_utc=True,
     task_track_started=True,
 )
-
-# Import task modules to register them
-celery_app.autodiscover_tasks(["app.tasks.transcription", "app.tasks.note_generation"])

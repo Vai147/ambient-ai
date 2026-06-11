@@ -4,6 +4,7 @@ import logging
 from celery import states
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.db.base import AsyncSessionLocal
 from app.models.session import Session
 from app.models.transcript import Transcript
@@ -29,8 +30,9 @@ async def _run_transcription(session_id: str) -> dict:
                 "openai-whisper is not installed. Run: pip install openai-whisper"
             )
 
-        logger.info("Loading Whisper model 'medium' for session %s", session_id)
-        model = whisper.load_model("medium")
+        model_name = settings.whisper_model
+        logger.info("Loading Whisper model '%s' for session %s", model_name, session_id)
+        model = whisper.load_model(model_name)
 
         logger.info("Transcribing %s", session.audio_file_path)
         whisper_result = model.transcribe(
@@ -60,13 +62,13 @@ async def _run_transcription(session_id: str) -> dict:
         if transcript:
             transcript.content = full_text
             transcript.speaker_turns = speaker_turns
-            transcript.whisper_model = "medium"
+            transcript.whisper_model = model_name
         else:
             transcript = Transcript(
                 session_id=session_id,
                 content=full_text,
                 speaker_turns=speaker_turns,
-                whisper_model="medium",
+                whisper_model=model_name,
             )
             db.add(transcript)
 

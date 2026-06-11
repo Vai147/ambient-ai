@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     # Anthropic
     anthropic_api_key: str = ""
 
+    # Transcription — Whisper model size (tiny/base/small/medium/large).
+    # "base" balances speed/memory for CPU; "medium" needs ~5GB RAM.
+    whisper_model: str = "base"
+
     # FHIR
     hapi_fhir_url: str = "http://localhost:8080/fhir"
 
