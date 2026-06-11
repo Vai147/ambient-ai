@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { sessionsApi } from "@/lib/api";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 export default function NewSessionPage() {
   const router = useRouter();
@@ -24,12 +26,39 @@ export default function NewSessionPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "oklch(14% 0.01 250)" }}>
-      <div className="w-full max-w-sm">
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 384 }}>
         <button
+          type="button"
           onClick={() => router.push("/dashboard")}
-          className="flex items-center gap-1.5 text-sm mb-8 transition-colors"
-          style={{ color: "oklch(55% 0.01 250)" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            marginBottom: 32,
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            fontSize: 14,
+            fontFamily: "var(--font-sans)",
+            color: "var(--text-tertiary)",
+            transition: "color var(--duration-fast) var(--ease-in-out)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-secondary)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-tertiary)";
+          }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -37,65 +66,40 @@ export default function NewSessionPage() {
           Back to sessions
         </button>
 
-        <h1 className="text-xl font-semibold mb-1" style={{ color: "oklch(96% 0.005 250)" }}>
+        <h1 style={{ margin: "0 0 4px", fontSize: "var(--text-xl)", fontWeight: "var(--weight-semibold)", color: "var(--text-primary)" }}>
           New encounter
         </h1>
-        <p className="text-sm mb-8" style={{ color: "oklch(55% 0.01 250)" }}>
+        <p style={{ margin: "0 0 32px", fontSize: 14, color: "var(--text-tertiary)" }}>
           Enter patient details to start recording
         </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "oklch(65% 0.01 250)" }}>
-              Patient name <span style={{ color: "oklch(55% 0.01 250)" }}>(optional)</span>
-            </label>
-            <input
-              type="text"
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-              placeholder="e.g. Jane Doe"
-              className="px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-              style={{
-                background: "oklch(22% 0.015 250)",
-                border: "1px solid oklch(96% 0.005 250 / 0.1)",
-                color: "oklch(96% 0.005 250)",
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = "oklch(70% 0.18 195 / 0.6)";
-                e.target.style.boxShadow = "0 0 0 3px oklch(70% 0.18 195 / 0.1)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "oklch(96% 0.005 250 / 0.1)";
-                e.target.style.boxShadow = "none";
-              }}
-            />
-          </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <Input
+            label="Patient name"
+            optional
+            value={patientName}
+            onChange={setPatientName}
+            placeholder="e.g. Jane Doe"
+          />
 
           {error && (
             <div
-              className="text-xs px-3 py-2.5 rounded-lg"
               style={{
-                background: "oklch(55% 0.22 25 / 0.12)",
-                border: "1px solid oklch(55% 0.22 25 / 0.3)",
-                color: "oklch(75% 0.18 25)",
+                fontSize: "var(--text-xs)",
+                padding: "10px 12px",
+                borderRadius: "var(--radius-lg)",
+                background: "var(--danger-tint-2)",
+                border: "1px solid var(--danger-border)",
+                color: "var(--danger-text)",
               }}
             >
               {error}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="py-2.5 rounded-lg text-sm font-medium transition-all mt-2"
-            style={{
-              background: loading ? "oklch(70% 0.18 195 / 0.5)" : "oklch(70% 0.18 195)",
-              color: "oklch(14% 0.01 250)",
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
+          <Button type="submit" fullWidth loading={loading} style={{ marginTop: 8 }}>
             {loading ? "Creating…" : "Start session"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

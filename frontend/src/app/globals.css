@@ -1,17 +1,119 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-inter: "Inter", system-ui, sans-serif;
-  --font-geist-mono: "Geist Mono", monospace;
+  /* ── Fonts ──────────────────────────────────────────────── */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  /* Aliases kept for tailwind.config.ts fontFamily references */
+  --font-inter: var(--font-sans);
+  --font-geist-mono: var(--font-mono);
 
-  /* Motion */
-  --duration-fast: 120ms;
+  /* ── Surfaces ───────────────────────────────────────────── */
+  --surface-base:     oklch(14% 0.01 250);
+  --surface-elevated: oklch(18% 0.01 250);
+  --surface-soft:     oklch(17% 0.01 250);
+  --surface-overlay:  oklch(22% 0.015 250);
+  --surface-inset:    oklch(14% 0.01 250);
+  --surface-header:   oklch(14% 0.01 250 / 0.85);
+  --surface-card:     var(--surface-elevated);
+  --surface-input:    var(--surface-overlay);
+
+  /* ── Accent (cyan) ──────────────────────────────────────── */
+  --accent:        oklch(70% 0.18 195);
+  --accent-subtle: oklch(70% 0.18 195 / 0.15);
+  --accent-tint:   oklch(70% 0.18 195 / 0.12);
+  --accent-faint:  oklch(70% 0.18 195 / 0.10);
+  --accent-border: oklch(70% 0.18 195 / 0.30);
+  --accent-muted:  oklch(70% 0.18 195 / 0.50);
+  --interactive:   var(--accent);
+
+  /* ── Status colors ──────────────────────────────────────── */
+  --success:        oklch(72% 0.18 155);
+  --success-tint:   oklch(72% 0.18 155 / 0.12);
+  --success-faint:  oklch(72% 0.18 155 / 0.08);
+  --success-border: oklch(72% 0.18 155 / 0.25);
+
+  --warning:        oklch(78% 0.19 75);
+  --warning-tint:   oklch(78% 0.19 75 / 0.12);
+  --warning-flag:   oklch(78% 0.19 75 / 0.18);
+  --warning-border: oklch(78% 0.19 75 / 0.30);
+  --warning-bright: oklch(85% 0.19 75);
+
+  --danger:         oklch(65% 0.22 25);
+  --danger-text:    oklch(75% 0.18 25);
+  --danger-tint:    oklch(65% 0.22 25 / 0.15);
+  --danger-tint-2:  oklch(55% 0.22 25 / 0.12);
+  --danger-border:  oklch(65% 0.22 25 / 0.30);
+
+  /* ── Text ladder (hue 250) ──────────────────────────────── */
+  --text-primary:   oklch(96% 0.005 250);
+  --text-reading:   oklch(88% 0.005 250);
+  --text-body:      oklch(80% 0.005 250);
+  --text-secondary: oklch(65% 0.01 250);
+  --text-tertiary:  oklch(55% 0.01 250);
+  --text-muted:     oklch(45% 0.01 250);
+  --text-on-accent: oklch(14% 0.01 250);
+
+  /* ── Borders (white at low alpha — hairlines, never gray) ── */
+  --border-hairline: oklch(96% 0.005 250 / 0.05);
+  --border-faint:    oklch(96% 0.005 250 / 0.06);
+  --border-subtle:   oklch(96% 0.005 250 / 0.08);
+  --border-strong:   oklch(96% 0.005 250 / 0.10);
+
+  /* ── Focus + grid ───────────────────────────────────────── */
+  --focus-ring:   oklch(70% 0.18 195 / 0.10);
+  --focus-border: oklch(70% 0.18 195 / 0.60);
+  --ring-focus:   0 0 0 3px var(--focus-ring);
+  --grid-line:    oklch(96% 0.005 250 / 0.03);
+
+  /* ── Type scale ─────────────────────────────────────────── */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+
+  --leading-tight:   1.25;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.625;
+
+  --tracking-tight:  -0.025em;
+  --tracking-wide:   0.05em;
+  --tracking-widest: 0.1em;
+
+  /* ── Radii ──────────────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-base: 8px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ── Layout ─────────────────────────────────────────────── */
+  --header-height:   3.5rem;
+  --content-narrow:  28rem;
+  --content-reading: 42rem;
+  --content-wide:    56rem;
+
+  /* ── Elevation (nearly shadowless; depth from surface + hairline) ── */
+  --shadow-popover: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --blur-header: blur(12px);
+
+  /* ── Motion ─────────────────────────────────────────────── */
+  --duration-fast:   120ms;
   --duration-normal: 250ms;
-  --duration-slow: 400ms;
+  --duration-slow:   400ms;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -19,17 +121,32 @@
 }
 
 body {
-  background: oklch(14% 0.01 250);
-  color: oklch(96% 0.005 250);
-  font-family: var(--font-inter);
+  margin: 0;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-subtle);
 }
 
 @layer utilities {
   .surface {
-    background: oklch(18% 0.01 250);
+    background: var(--surface-elevated);
   }
   .surface-overlay {
-    background: oklch(22% 0.015 250);
+    background: var(--surface-overlay);
   }
+}
+
+@keyframes as-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes as-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }

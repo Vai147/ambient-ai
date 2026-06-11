@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { authApi } from "@/lib/api";
 import { setToken } from "@/lib/cookies";
 import { useAuthStore } from "@/stores/auth";
+import { Logo } from "@/components/ui/Logo";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,132 +38,93 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      {/* Subtle grid background */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(oklch(96% 0.005 250 / 0.03) 1px, transparent 1px), linear-gradient(90deg, oklch(96% 0.005 250 / 0.03) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
-
-      <div className="relative w-full max-w-sm">
+    <main
+      className="flex items-center justify-center px-4"
+      style={{
+        minHeight: "100vh",
+        position: "relative",
+        backgroundImage:
+          "linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }}
+    >
+      <div className="relative w-full" style={{ maxWidth: 384 }}>
         {/* Brand */}
-        <div className="mb-10 text-center">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-4"
-            style={{ background: "oklch(70% 0.18 195 / 0.15)", border: "1px solid oklch(70% 0.18 195 / 0.3)" }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 2v16M2 10h16" stroke="oklch(70% 0.18 195)" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+        <div className="text-center" style={{ marginBottom: 40 }}>
+          <div style={{ marginBottom: 16 }}>
+            <Logo size="lg" withWordmark={false} />
           </div>
-          <h1 className="text-xl font-semibold tracking-tight" style={{ color: "oklch(96% 0.005 250)" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "var(--text-xl)",
+              fontWeight: "var(--weight-semibold)",
+              letterSpacing: "var(--tracking-tight)",
+              color: "var(--text-primary)",
+            }}
+          >
             Ambient Scribe
           </h1>
-          <p className="text-sm mt-1" style={{ color: "oklch(65% 0.01 250)" }}>
+          <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--text-secondary)" }}>
             Clinical documentation assistant
           </p>
         </div>
 
         {/* Card */}
-        <div
-          className="rounded-xl p-8"
-          style={{
-            background: "oklch(18% 0.01 250)",
-            border: "1px solid oklch(96% 0.005 250 / 0.08)",
-          }}
-        >
-          <h2 className="text-base font-medium mb-6" style={{ color: "oklch(96% 0.005 250)" }}>
+        <Card padding={32}>
+          <h2
+            style={{
+              margin: "0 0 24px",
+              fontSize: "var(--text-base)",
+              fontWeight: "var(--weight-medium)",
+              color: "var(--text-primary)",
+            }}
+          >
             Sign in
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium" style={{ color: "oklch(65% 0.01 250)" }}>
-                Email
-              </label>
-              <input
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-                style={{
-                  background: "oklch(22% 0.015 250)",
-                  border: "1px solid oklch(96% 0.005 250 / 0.1)",
-                  color: "oklch(96% 0.005 250)",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "oklch(70% 0.18 195 / 0.6)";
-                  e.target.style.boxShadow = "0 0 0 3px oklch(70% 0.18 195 / 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "oklch(96% 0.005 250 / 0.1)";
-                  e.target.style.boxShadow = "none";
-                }}
-                placeholder="clinician@demo.test"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium" style={{ color: "oklch(65% 0.01 250)" }}>
-                Password
-              </label>
-              <input
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-                style={{
-                  background: "oklch(22% 0.015 250)",
-                  border: "1px solid oklch(96% 0.005 250 / 0.1)",
-                  color: "oklch(96% 0.005 250)",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "oklch(70% 0.18 195 / 0.6)";
-                  e.target.style.boxShadow = "0 0 0 3px oklch(70% 0.18 195 / 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "oklch(96% 0.005 250 / 0.1)";
-                  e.target.style.boxShadow = "none";
-                }}
-                placeholder="••••••••"
-              />
-            </div>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <Input
+              label="Email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={setEmail}
+              placeholder="clinician@demo.test"
+            />
+            <Input
+              label="Password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={setPassword}
+              placeholder="••••••••"
+            />
 
             {error && (
               <div
-                className="text-xs px-3 py-2.5 rounded-lg"
                 style={{
-                  background: "oklch(55% 0.22 25 / 0.12)",
-                  border: "1px solid oklch(55% 0.22 25 / 0.3)",
-                  color: "oklch(75% 0.18 25)",
+                  fontSize: "var(--text-xs)",
+                  padding: "10px 12px",
+                  borderRadius: "var(--radius-lg)",
+                  background: "var(--danger-tint-2)",
+                  border: "1px solid var(--danger-border)",
+                  color: "var(--danger-text)",
                 }}
               >
                 {error}
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 rounded-lg text-sm font-medium transition-all mt-2"
-              style={{
-                background: loading ? "oklch(70% 0.18 195 / 0.5)" : "oklch(70% 0.18 195)",
-                color: "oklch(14% 0.01 250)",
-                cursor: loading ? "not-allowed" : "pointer",
-              }}
-            >
+            <Button type="submit" fullWidth loading={loading} style={{ marginTop: 8 }}>
               {loading ? "Signing in…" : "Sign in"}
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
 
-        <p className="text-center text-xs mt-6" style={{ color: "oklch(45% 0.01 250)" }}>
+        <p style={{ textAlign: "center", fontSize: 12, marginTop: 24, color: "var(--text-muted)" }}>
           Demo: clinician@demo.test / password
         </p>
       </div>
