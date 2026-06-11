@@ -35,9 +35,11 @@ async def _run_transcription(session_id: str) -> dict:
         model = whisper.load_model(model_name)
 
         logger.info("Transcribing %s", session.audio_file_path)
+        # Segment-level timestamps only — speaker_turns below uses seg
+        # start/end/text. word_timestamps adds a costly alignment pass we
+        # don't consume, so leave it off to keep CPU transcription fast.
         whisper_result = model.transcribe(
             session.audio_file_path,
-            word_timestamps=True,
             verbose=False,
         )
 
