@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/Card";
 
 interface TranscriptViewProps {
   transcript: TranscriptResponse;
+  /** Logged-in clinician — labels their turns instead of a generic "Dr". */
+  clinicianName?: string | null;
 }
 
 function formatTime(seconds: number): string {
@@ -13,7 +15,18 @@ function formatTime(seconds: number): string {
   return `${m}:${s}`;
 }
 
-export function TranscriptView({ transcript }: TranscriptViewProps) {
+/** Two-letter initials from a name or email; falls back to "Dr". */
+function clinicianInitials(name?: string | null): string {
+  if (!name) return "Dr";
+  const local = name.includes("@") ? name.split("@")[0] : name;
+  const parts = local.split(/[\s._-]+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  if (parts[0]?.length >= 2) return parts[0].slice(0, 2).toUpperCase();
+  return parts[0]?.[0]?.toUpperCase() ?? "Dr";
+}
+
+export function TranscriptView({ transcript, clinicianName }: TranscriptViewProps) {
+  const clinicianLabel = clinicianInitials(clinicianName);
   const turns = transcript.speaker_turns as Array<{
     start: number;
     end: number;
@@ -70,6 +83,7 @@ export function TranscriptView({ transcript }: TranscriptViewProps) {
                   }}
                 >
                   <div
+                    title={isClinician && clinicianName ? clinicianName : undefined}
                     style={{
                       width: 24,
                       height: 24,
@@ -83,7 +97,7 @@ export function TranscriptView({ transcript }: TranscriptViewProps) {
                       color: isClinician ? "var(--accent)" : "var(--success)",
                     }}
                   >
-                    {isClinician ? "Dr" : "Pt"}
+                    {isClinician ? clinicianLabel : "Pt"}
                   </div>
                   <span
                     style={{

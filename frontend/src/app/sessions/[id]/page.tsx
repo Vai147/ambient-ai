@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { audioApi, notesApi, fhirApi, type FHIRExportResponse } from "@/lib/api";
 import { useSession, useTranscript, useNote } from "@/hooks/useSession";
+import { useAuthStore } from "@/stores/auth";
 import { AudioRecorder } from "@/components/audio-recorder/AudioRecorder";
 import { TranscriptView } from "@/components/transcript-view/TranscriptView";
 import { SOAPNoteEditor } from "@/components/soap-editor/SOAPNoteEditor";
@@ -118,6 +119,8 @@ export default function SessionPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+  const clinicianName = user?.full_name ?? user?.email ?? null;
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const { data: session, isLoading } = useSession(id);
@@ -229,7 +232,7 @@ export default function SessionPage() {
 
         {status === "transcribed" && (
           <>
-            {transcript && <TranscriptView transcript={transcript} />}
+            {transcript && <TranscriptView transcript={transcript} clinicianName={clinicianName} />}
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <GenerateNoteButton
                 sessionId={id}
@@ -241,14 +244,14 @@ export default function SessionPage() {
 
         {status === "generating" && (
           <>
-            {transcript && <TranscriptView transcript={transcript} />}
+            {transcript && <TranscriptView transcript={transcript} clinicianName={clinicianName} />}
             <Spinner label="Claude is generating the SOAP note…" />
           </>
         )}
 
         {(status === "note_generated" || status === "approved") && (
           <>
-            {transcript && <TranscriptView transcript={transcript} />}
+            {transcript && <TranscriptView transcript={transcript} clinicianName={clinicianName} />}
             {note ? <SOAPNoteEditor note={note} sessionId={id} /> : <Spinner label="Loading note…" />}
             {status === "approved" && <FHIRExportButton sessionId={id} />}
           </>

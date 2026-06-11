@@ -26,6 +26,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     throw new ApiError(res.status, body.detail ?? "Request failed");
   }
 
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -89,6 +90,9 @@ export const sessionsApi = {
 
   status: (id: string) =>
     request<{ session_id: string; status: SessionStatus }>(`/api/sessions/${id}/status`),
+
+  remove: (id: string) =>
+    request<void>(`/api/sessions/${id}`, { method: "DELETE" }),
 };
 
 // ─── Audio / Transcription ────────────────────────────────────────────────────
