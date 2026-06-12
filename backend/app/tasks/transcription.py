@@ -12,6 +12,29 @@ from app.tasks.worker import celery_app
 
 logger = logging.getLogger(__name__)
 
+# Cache the loaded Whisper model per worker process. load_model re-reads
+# weights from disk and re-inits the graph each call (~seconds), which
+# dominates short-clip latency — load once and reuse across tasks.
+_model_cache: dict = {}
+
+
+def _get_whisper_model(model_name: str):
+    cached = _model_cache.get(model_name)
+    if cached is not None:
+        return cached
+
+    try:
+        import whisper
+    except ImportError:
+        raise RuntimeError(
+            "openai-whisper is not installed. Run: pip install openai-whisper"
+        )
+
+    logger.info("Loading Whisper model '%s' (first use, caching)", model_name)
+    model = whisper.load_model(model_name)
+    _model_cache[model_name] = model
+    return model
+
 
 async def _run_transcription(session_id: str) -> dict:
     async with AsyncSessionLocal() as db:
@@ -23,16 +46,8 @@ async def _run_transcription(session_id: str) -> dict:
         if not session.audio_file_path:
             raise ValueError(f"Session {session_id} has no audio file")
 
-        try:
-            import whisper
-        except ImportError:
-            raise RuntimeError(
-                "openai-whisper is not installed. Run: pip install openai-whisper"
-            )
-
         model_name = settings.whisper_model
-        logger.info("Loading Whisper model '%s' for session %s", model_name, session_id)
-        model = whisper.load_model(model_name)
+        model = _get_whisper_model(model_name)
 
         logger.info("Transcribing %s", session.audio_file_path)
         # Segment-level timestamps only — speaker_turns below uses seg
