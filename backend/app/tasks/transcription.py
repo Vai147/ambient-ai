@@ -5,7 +5,7 @@ from celery import states
 from sqlalchemy import select
 
 from app.core.config import settings
-from app.db.base import AsyncSessionLocal
+from app.db.base import task_db_session
 from app.models.session import Session
 from app.models.transcript import Transcript
 from app.tasks.worker import celery_app
@@ -37,7 +37,7 @@ def _get_whisper_model(model_name: str):
 
 
 async def _run_transcription(session_id: str) -> dict:
-    async with AsyncSessionLocal() as db:
+    async with task_db_session() as db:
         result = await db.execute(select(Session).where(Session.id == session_id))
         session = result.scalar_one_or_none()
 
@@ -101,7 +101,7 @@ async def _run_transcription(session_id: str) -> dict:
 
 
 async def _mark_session_failed(session_id: str) -> None:
-    async with AsyncSessionLocal() as db:
+    async with task_db_session() as db:
         result = await db.execute(select(Session).where(Session.id == session_id))
         session = result.scalar_one_or_none()
         if session:

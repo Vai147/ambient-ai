@@ -4,7 +4,7 @@ import logging
 from celery import states
 from sqlalchemy import select
 
-from app.db.base import AsyncSessionLocal
+from app.db.base import task_db_session
 from app.models.session import Session
 from app.models.soap_note import SOAPNote
 from app.models.transcript import Transcript
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 async def _run_note_generation(session_id: str) -> dict:
-    async with AsyncSessionLocal() as db:
+    async with task_db_session() as db:
         result = await db.execute(select(Session).where(Session.id == session_id))
         session = result.scalar_one_or_none()
         if not session:
@@ -109,7 +109,7 @@ async def _run_note_generation(session_id: str) -> dict:
 
 
 async def _mark_session_failed(session_id: str) -> None:
-    async with AsyncSessionLocal() as db:
+    async with task_db_session() as db:
         result = await db.execute(select(Session).where(Session.id == session_id))
         session = result.scalar_one_or_none()
         if session:
