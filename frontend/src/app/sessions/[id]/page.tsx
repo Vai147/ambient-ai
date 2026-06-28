@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { audioApi, notesApi, fhirApi, type FHIRExportResponse } from "@/lib/api";
+import { audioApi, notesApi, fhirApi, type FHIRExportResponse, type FHIRValidationIssue } from "@/lib/api";
 import { useSession, useTranscript, useNote } from "@/hooks/useSession";
 import { useAuthStore } from "@/stores/auth";
 import { AudioRecorder } from "@/components/audio-recorder/AudioRecorder";
@@ -83,6 +83,12 @@ function FHIRExportButton({ sessionId }: { sessionId: string }) {
   }
 
   if (result) {
+    const { valid, issues, validated_by } = result.validation;
+    const errors = issues.filter((i) => i.severity === "error");
+    const warnings = issues.filter((i) => i.severity === "warning");
+    const shown: FHIRValidationIssue[] = valid ? warnings.slice(0, 3) : errors;
+    const persistedNote = result.posted ? "persisted to HAPI" : "validated, not persisted";
+
     return (
       <div
         style={{
@@ -91,16 +97,45 @@ function FHIRExportButton({ sessionId }: { sessionId: string }) {
           display: "flex",
           flexDirection: "column",
           gap: 8,
-          background: "var(--success-faint)",
-          border: "1px solid var(--success-border)",
+          background: valid ? "var(--success-faint)" : "var(--danger-tint)",
+          border: `1px solid ${valid ? "var(--success-border)" : "var(--danger-border)"}`,
         }}
       >
-        <span style={{ color: "var(--success)", fontSize: "var(--text-sm)", fontWeight: 500 }}>
-          ✓ FHIR Bundle exported
+        <span
+          style={{
+            color: valid ? "var(--success)" : "var(--danger-text)",
+            fontSize: "var(--text-sm)",
+            fontWeight: 500,
+          }}
+        >
+          {valid ? "✓ Valid FHIR R4 — exported" : "✕ Invalid FHIR R4 — not exported"}
         </span>
         <p style={{ fontSize: "var(--text-xs)", fontFamily: "var(--font-mono)", color: "var(--text-secondary)" }}>
           Bundle ID: {result.bundle_id}
+          {valid && ` · ${persistedNote}`}
+          {` · validated ${validated_by.join(", ")}`}
         </p>
+        {shown.length > 0 && (
+          <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 4 }}>
+            {shown.map((issue, idx) => (
+              <li
+                key={`${issue.location ?? issue.code}-${idx}`}
+                style={{
+                  fontSize: "var(--text-xs)",
+                  color: valid ? "var(--warning)" : "var(--danger-text)",
+                }}
+              >
+                {issue.location ? `${issue.location}: ` : ""}
+                {issue.message}
+              </li>
+            ))}
+            {valid && warnings.length > shown.length && (
+              <li style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
+                +{warnings.length - shown.length} more warning(s)
+              </li>
+            )}
+          </ul>
+        )}
       </div>
     );
   }
