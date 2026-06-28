@@ -68,6 +68,7 @@ function FHIRExportButton({ sessionId }: { sessionId: string }) {
   const [result, setResult] = useState<FHIRExportResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showBundle, setShowBundle] = useState(false);
 
   async function handleExport() {
     setLoading(true);
@@ -135,6 +136,42 @@ function FHIRExportButton({ sessionId }: { sessionId: string }) {
               </li>
             )}
           </ul>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setShowBundle((s) => !s)}
+          style={{
+            alignSelf: "flex-start",
+            fontSize: "var(--text-xs)",
+            fontWeight: 500,
+            color: "var(--accent)",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
+        >
+          {showBundle ? "▾ Hide FHIR bundle" : "▸ View FHIR bundle"}
+        </button>
+        {showBundle && (
+          <pre
+            style={{
+              margin: 0,
+              maxHeight: "22rem",
+              overflow: "auto",
+              borderRadius: "var(--radius-lg)",
+              padding: "12px 14px",
+              background: "var(--surface-overlay)",
+              border: "1px solid var(--border-faint)",
+              fontSize: "var(--text-xs)",
+              fontFamily: "var(--font-mono)",
+              color: "var(--text-reading)",
+              lineHeight: 1.5,
+            }}
+          >
+            {JSON.stringify(result.bundle, null, 2)}
+          </pre>
         )}
       </div>
     );
