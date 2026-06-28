@@ -67,6 +67,13 @@ async def export_fhir(
         session_created_at=session.created_at,
         note=note_dict,
     )
+
+    # Persist the validation result so there's a record of bundle validity.
+    # Invalidity is data, not an HTTP error — the response stays 200 and the
+    # caller inspects `validation.valid`.
+    note.fhir_validation = export["validation"]
+    await db.commit()
+
     return export
 
 
@@ -75,6 +82,11 @@ async def get_composition(
     composition_id: str,
     current_user: User = Depends(get_current_user),
 ) -> dict:
+    if not settings.hapi_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="HAPI FHIR not configured",
+        )
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             resp = await client.get(

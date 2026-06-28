@@ -22,6 +22,7 @@ class SOAPNote(Base):
     plan: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
     hallucination_flags: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     corrections: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    fhir_validation: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     clinician_approved_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
