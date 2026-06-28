@@ -91,7 +91,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={setEmail}
-              placeholder="clinician@demo.test"
+              placeholder="Email"
             />
             <Input
               label="Password"
@@ -123,10 +123,6 @@ export default function LoginPage() {
             </Button>
           </form>
         </Card>
-
-        <p style={{ textAlign: "center", fontSize: 12, marginTop: 24, color: "var(--text-muted)" }}>
-          Demo: clinician@demo.test / password
-        </p>
       </div>
     </main>
   );
