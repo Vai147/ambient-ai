@@ -24,12 +24,12 @@ class Settings(BaseSettings):
         return self
 
     # Redis / Celery
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str
 
     # Auth
-    jwt_secret: str = "dev_secret_change_in_prod"
+    jwt_secret: str
     jwt_algorithm: str = "HS256"
-    jwt_expiry_minutes: int = 60 * 8  # 8 hours
+    jwt_expiry_minutes: int = 60 * 1  # 1 hour
 
     # Anthropic
     anthropic_api_key: str = ""
