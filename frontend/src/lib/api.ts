@@ -174,9 +174,27 @@ export const notesApi = {
 
 // ─── FHIR Export ─────────────────────────────────────────────────────────────
 
+export type FHIRValidationIssue = {
+  severity: "error" | "warning" | "information";
+  code: string;
+  location: string | null;
+  message: string;
+  source: "local" | "hapi";
+};
+
+export type FHIRValidation = {
+  valid: boolean;
+  issues: FHIRValidationIssue[];
+  validated_by: string[];
+  hapi_reachable: boolean | null;
+  validated_at: string;
+};
+
 export type FHIRExportResponse = {
   bundle_id: string;
   bundle: Record<string, unknown>;
+  posted: boolean;
+  validation: FHIRValidation;
 };
 
 export const fhirApi = {

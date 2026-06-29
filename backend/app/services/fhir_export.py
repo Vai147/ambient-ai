@@ -17,6 +17,7 @@ from uuid import uuid4
 import httpx
 
 from app.core.config import settings
+from app.services.fhir_validation import validate_bundle
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +32,10 @@ def _patient_ref(patient_name: str | None) -> dict:
     return {"display": patient_name or "Unknown Patient"}
 
 
-def _build_encounter(session_id: str, patient_name: str | None, created_at: datetime) -> dict:
+def _build_encounter(resource_id: str, patient_name: str | None, created_at: datetime) -> dict:
     return {
         "resourceType": "Encounter",
-        "id": f"encounter-{session_id}",
+        "id": resource_id,
         "status": "finished",
         "class": {
             "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
@@ -48,14 +49,16 @@ def _build_encounter(session_id: str, patient_name: str | None, created_at: date
     }
 
 
-def _build_condition(icd_entry: dict, session_id: str, patient_name: str | None) -> dict | None:
+def _build_condition(
+    icd_entry: dict, resource_id: str, patient_name: str | None, encounter_ref: str
+) -> dict | None:
     code = icd_entry.get("code", "").strip()
     description = icd_entry.get("description") or icd_entry.get("canonical_description") or code
     if not code:
         return None
     return {
         "resourceType": "Condition",
-        "id": f"condition-{session_id}-{code.replace('.', '-')}",
+        "id": resource_id,
         "clinicalStatus": {
             "coding": [{
                 "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
@@ -71,39 +74,41 @@ def _build_condition(icd_entry: dict, session_id: str, patient_name: str | None)
             "text": description,
         },
         "subject": _patient_ref(patient_name),
-        "encounter": {"reference": f"#encounter-{session_id}"},
+        "encounter": {"reference": encounter_ref},
     }
 
 
-def _build_medication_request(med: dict, session_id: str, patient_name: str | None) -> dict | None:
+def _build_medication_request(
+    med: dict, resource_id: str, patient_name: str | None, encounter_ref: str
+) -> dict | None:
     name = med.get("name", "").strip()
     if not name:
         return None
-    med_id = f"medreq-{session_id}-{name.lower().replace(' ', '-')[:30]}"
     dosage = []
     dose_text = " ".join(filter(None, [med.get("dose"), med.get("frequency"), med.get("duration")])).strip()
     if dose_text:
         dosage = [{"text": dose_text}]
     return {
         "resourceType": "MedicationRequest",
-        "id": med_id,
+        "id": resource_id,
         "status": "active",
         "intent": "order",
         "medicationCodeableConcept": {
             "text": name,
         },
         "subject": _patient_ref(patient_name),
-        "encounter": {"reference": f"#encounter-{session_id}"},
+        "encounter": {"reference": encounter_ref},
         "dosageInstruction": dosage,
     }
 
 
 def _build_composition(
-    session_id: str,
+    resource_id: str,
     patient_name: str | None,
     note: dict,
     condition_refs: list[str],
     medreq_refs: list[str],
+    encounter_ref: str,
 ) -> dict:
     sections = []
 
@@ -139,7 +144,7 @@ def _build_composition(
 
     return {
         "resourceType": "Composition",
-        "id": f"composition-{session_id}",
+        "id": resource_id,
         "status": "final",
         "type": {
             "coding": [{
@@ -149,6 +154,7 @@ def _build_composition(
             }]
         },
         "subject": _patient_ref(patient_name),
+        "encounter": {"reference": encounter_ref},
         "date": _now_iso(),
         "author": [{"display": "Ambient Scribe"}],
         "title": "SOAP Note",
@@ -188,21 +194,43 @@ def build_fhir_bundle(
         if not rxnorm_validation or m.get("name") in resolved_meds
     ]
 
-    encounter = _build_encounter(session_id, patient_name, session_created_at)
+    # Each resource gets a real UUID. In a document Bundle, resources reference
+    # each other by their entry fullUrl (urn:uuid:<id>), not by "#local" syntax
+    # (which is only for contained resources) — HAPI rejects the latter.
+    encounter_id = str(uuid4())
+    encounter_ref = f"urn:uuid:{encounter_id}"
+    encounter = _build_encounter(encounter_id, patient_name, session_created_at)
 
-    conditions = [c for c in (_build_condition(e, session_id, patient_name) for e in icd_entries) if c]
-    med_requests = [m for m in (_build_medication_request(m, session_id, patient_name) for m in meds) if m]
+    conditions: list[dict] = []
+    condition_refs: list[str] = []
+    for entry in icd_entries:
+        cid = str(uuid4())
+        condition = _build_condition(entry, cid, patient_name, encounter_ref)
+        if condition:
+            conditions.append(condition)
+            condition_refs.append(f"urn:uuid:{cid}")
 
-    condition_refs = [f'#{c["id"]}' for c in conditions]
-    medreq_refs = [f'#{m["id"]}' for m in med_requests]
+    med_requests: list[dict] = []
+    medreq_refs: list[str] = []
+    for med in meds:
+        mid = str(uuid4())
+        medreq = _build_medication_request(med, mid, patient_name, encounter_ref)
+        if medreq:
+            med_requests.append(medreq)
+            medreq_refs.append(f"urn:uuid:{mid}")
 
-    composition = _build_composition(session_id, patient_name, note, condition_refs, medreq_refs)
+    composition = _build_composition(
+        str(uuid4()), patient_name, note, condition_refs, medreq_refs, encounter_ref
+    )
 
     entries = [composition, encounter] + conditions + med_requests
 
+    bundle_id = str(uuid4())
     bundle: dict = {
         "resourceType": "Bundle",
-        "id": str(uuid4()),
+        "id": bundle_id,
+        # bdl-9: a document Bundle SHALL carry an identifier (system + value).
+        "identifier": {"system": "urn:ietf:rfc:3986", "value": f"urn:uuid:{bundle_id}"},
         "type": "document",
         "timestamp": _now_iso(),
         "entry": [{"resource": r, "fullUrl": f'urn:uuid:{r["id"]}'} for r in entries],
@@ -229,12 +257,35 @@ async def export_session_to_fhir(
     session_created_at: datetime,
     note: dict,
 ) -> dict:
-    """Build Bundle, post to HAPI, return {"bundle_id": ..., "bundle": {...}}."""
+    """Build Bundle, validate, then post to HAPI only when valid.
+
+    Returns {"bundle_id", "bundle", "validation", "posted"}. The three outcomes
+    are kept distinct: an invalid bundle is never posted, and an unreachable
+    HAPI never masquerades as an invalid bundle.
+    """
     bundle = build_fhir_bundle(session_id, patient_name, session_created_at, note)
-    try:
-        bundle_id = await post_to_hapi(bundle)
-        bundle["id"] = bundle_id
-        logger.info("FHIR Bundle posted to HAPI: %s", bundle_id)
-    except Exception as exc:
-        logger.warning("HAPI FHIR unavailable, returning local bundle: %s", exc)
-    return {"bundle_id": bundle["id"], "bundle": bundle}
+    # validate_bundle gates the HAPI $validate layer on settings.hapi_enabled;
+    # with no HAPI configured this is pure in-codebase validation, no network.
+    result = await validate_bundle(bundle)
+
+    posted = False
+    if not result.valid:
+        error_count = sum(1 for i in result.issues if i.severity == "error")
+        logger.warning("FHIR Bundle invalid; not posting. errors=%d", error_count)
+    elif settings.hapi_enabled and settings.hapi_persist:
+        # Persist only to an owned HAPI. Never auto-POST to an external/public
+        # server (would store PHI off-system) — that is what hapi_persist gates.
+        try:
+            bundle_id = await post_to_hapi(bundle)
+            bundle["id"] = bundle_id
+            posted = True
+            logger.info("FHIR Bundle posted to HAPI: %s", bundle_id)
+        except Exception as exc:
+            logger.warning("FHIR Bundle valid but HAPI post failed: %s", exc)
+
+    return {
+        "bundle_id": bundle["id"],
+        "bundle": bundle,
+        "validation": result.to_dict(),
+        "posted": posted,
+    }

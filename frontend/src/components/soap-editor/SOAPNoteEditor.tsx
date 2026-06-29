@@ -225,37 +225,52 @@ function AssessmentSection({
 
   return (
     <SectionShell title="Assessment" locked={isAccepted} lockedColor="var(--success)">
-      <div
-        className="text-sm leading-relaxed space-y-2"
-        style={{
-          color: isRejected ? "var(--text-tertiary)" : "var(--text-body)",
-          textDecoration: isRejected ? "line-through" : "none",
-        }}
-      >
-        {a.summary && <p>{a.summary}</p>}
-        {a.icd10_codes.length > 0 && (
-          <ul className="space-y-0.5">
-            {a.icd10_codes.map((c) => {
-              const flagged = unverified.includes(c.description);
-              return (
-                <li key={c.code} className="flex items-center gap-2">
-                  <span
-                    className="font-mono text-xs px-1.5 py-0.5 rounded"
-                    style={{ background: "var(--surface-overlay)", color: "var(--accent)" }}
-                  >
-                    {c.code}
-                  </span>
-                  {flagged ? (
-                    <UnverifiedFlag item={c.description} />
-                  ) : (
-                    <span>{c.description}</span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+      {state.action === "edit" ? (
+        <textarea
+          className="w-full rounded-lg px-3 py-2.5 text-sm resize-none"
+          style={{
+            background: "var(--surface-overlay)",
+            border: "1px solid var(--accent-border)",
+            color: "var(--text-reading)",
+            minHeight: "6rem",
+          }}
+          value={state.editedText}
+          onChange={(e) => onChange({ ...state, editedText: e.target.value })}
+          autoFocus
+        />
+      ) : (
+        <div
+          className="text-sm leading-relaxed space-y-2"
+          style={{
+            color: isRejected ? "var(--text-tertiary)" : "var(--text-body)",
+            textDecoration: isRejected ? "line-through" : "none",
+          }}
+        >
+          {a.summary && <p>{a.summary}</p>}
+          {a.icd10_codes.length > 0 && (
+            <ul className="space-y-0.5">
+              {a.icd10_codes.map((c) => {
+                const flagged = unverified.includes(c.description);
+                return (
+                  <li key={c.code} className="flex items-center gap-2">
+                    <span
+                      className="font-mono text-xs px-1.5 py-0.5 rounded"
+                      style={{ background: "var(--surface-overlay)", color: "var(--accent)" }}
+                    >
+                      {c.code}
+                    </span>
+                    {flagged ? (
+                      <UnverifiedFlag item={c.description} />
+                    ) : (
+                      <span>{c.description}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
       <SectionActionBar state={state} onChange={onChange} locked={approved} />
     </SectionShell>
   );
@@ -280,42 +295,57 @@ function PlanSection({
 
   return (
     <SectionShell title="Plan" locked={isAccepted} lockedColor="var(--success)">
-      <div
-        className="text-sm leading-relaxed space-y-2"
-        style={{
-          color: isRejected ? "var(--text-tertiary)" : "var(--text-body)",
-          textDecoration: isRejected ? "line-through" : "none",
-        }}
-      >
-        {p.medications.length > 0 && (
-          <div>
-            <span
-              className="text-xs font-medium uppercase tracking-wide"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Medications
-            </span>
-            <ul className="mt-1 space-y-0.5 list-disc list-inside">
-              {p.medications.map((m) => {
-                const flagged = unverified.includes(m.name);
-                const detail = [m.dose, m.frequency, m.duration].filter(Boolean).join(" · ");
-                return (
-                  <li key={m.name}>
-                    {flagged ? <UnverifiedFlag item={m.name} /> : <span>{m.name}</span>}
-                    {detail && (
-                      <span style={{ color: "var(--text-tertiary)" }}> — {detail}</span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
-        {p.instructions && <p>{p.instructions}</p>}
-        {p.follow_up && (
-          <p style={{ color: "var(--text-secondary)" }}>Follow-up: {p.follow_up}</p>
-        )}
-      </div>
+      {state.action === "edit" ? (
+        <textarea
+          className="w-full rounded-lg px-3 py-2.5 text-sm resize-none"
+          style={{
+            background: "var(--surface-overlay)",
+            border: "1px solid var(--accent-border)",
+            color: "var(--text-reading)",
+            minHeight: "6rem",
+          }}
+          value={state.editedText}
+          onChange={(e) => onChange({ ...state, editedText: e.target.value })}
+          autoFocus
+        />
+      ) : (
+        <div
+          className="text-sm leading-relaxed space-y-2"
+          style={{
+            color: isRejected ? "var(--text-tertiary)" : "var(--text-body)",
+            textDecoration: isRejected ? "line-through" : "none",
+          }}
+        >
+          {p.medications.length > 0 && (
+            <div>
+              <span
+                className="text-xs font-medium uppercase tracking-wide"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                Medications
+              </span>
+              <ul className="mt-1 space-y-0.5 list-disc list-inside">
+                {p.medications.map((m) => {
+                  const flagged = unverified.includes(m.name);
+                  const detail = [m.dose, m.frequency, m.duration].filter(Boolean).join(" · ");
+                  return (
+                    <li key={m.name}>
+                      {flagged ? <UnverifiedFlag item={m.name} /> : <span>{m.name}</span>}
+                      {detail && (
+                        <span style={{ color: "var(--text-tertiary)" }}> — {detail}</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {p.instructions && <p>{p.instructions}</p>}
+          {p.follow_up && (
+            <p style={{ color: "var(--text-secondary)" }}>Follow-up: {p.follow_up}</p>
+          )}
+        </div>
+      )}
       <SectionActionBar state={state} onChange={onChange} locked={approved} />
     </SectionShell>
   );

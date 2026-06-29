@@ -59,6 +59,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ambient}:${POSTGRES_PASSWORD:-ambient_dev}@postgres:5432/${POSTGRES_DB:-ambient_scribe}
       REDIS_URL: redis://redis:6379/0
       HAPI_FHIR_URL: http://hapi-fhir:8080/fhir
+      HAPI_PERSIST: "true"
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       JWT_SECRET: ${JWT_SECRET:-dev_secret_change_in_prod}
       CORS_ORIGINS: http://localhost:3000
@@ -89,6 +90,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ambient}:${POSTGRES_PASSWORD:-ambient_dev}@postgres:5432/${POSTGRES_DB:-ambient_scribe}
       REDIS_URL: redis://redis:6379/0
       HAPI_FHIR_URL: http://hapi-fhir:8080/fhir
+      HAPI_PERSIST: "true"
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       JWT_SECRET: ${JWT_SECRET:-dev_secret_change_in_prod}
       CORS_ORIGINS: http://localhost:3000

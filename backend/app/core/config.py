@@ -41,8 +41,20 @@ class Settings(BaseSettings):
     # on short clips. Empty string = let Whisper auto-detect.
     whisper_language: str = "en"
 
-    # FHIR
-    hapi_fhir_url: str = "http://localhost:8080/fhir"
+    # FHIR — empty means no HAPI server is configured. When unset, FHIR
+    # validation runs locally (in-codebase) only and bundles are never posted,
+    # so prod without a HAPI service makes no doomed localhost calls.
+    # docker-compose sets HAPI_FHIR_URL to the in-network HAPI service.
+    hapi_fhir_url: str = ""
+    # Persist (POST) bundles to HAPI only when explicitly enabled. Keep this
+    # False for any external/public HAPI (e.g. https://hapi.fhir.org/baseR4),
+    # which would otherwise store PHI on a server you don't control. $validate
+    # never persists and is governed by hapi_enabled alone.
+    hapi_persist: bool = False
+
+    @property
+    def hapi_enabled(self) -> bool:
+        return bool(self.hapi_fhir_url.strip())
 
     # Storage
     audio_storage_path: str = "/data/audio"
