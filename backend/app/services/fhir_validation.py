@@ -21,7 +21,7 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-_HAPI_BASE = getattr(settings, "hapi_fhir_url", "http://localhost:8080/fhir")
+_HAPI_BASE = getattr(settings, "hapi_fhir_url", "")
 _HAPI_TIMEOUT = 10.0
 
 Severity = Literal["error", "warning", "information"]
@@ -98,7 +98,8 @@ def validate_bundle_local(bundle: dict) -> list[ValidationIssue]:
             ValidationIssue(
                 severity="error",
                 code="structure",
-                location=".".join(str(part) for part in err.get("loc", ())) or None,
+                location=".".join(str(part)
+                                  for part in err.get("loc", ())) or None,
                 message=err.get("msg", "Invalid value"),
                 source="local",
             )
@@ -125,7 +126,8 @@ def parse_operation_outcome(outcome: dict, source: Source = "hapi") -> list[Vali
         message = issue.get("diagnostics")
         if not message:
             details = issue.get("details") or {}
-            message = details.get("text") or issue.get("code") or "Validation issue"
+            message = details.get("text") or issue.get(
+                "code") or "Validation issue"
 
         issues.append(
             ValidationIssue(
@@ -186,7 +188,8 @@ async def validate_bundle(bundle: dict, *, try_hapi: bool | None = None) -> Vali
             validated_by.append("hapi")
             issues.extend(hapi_issues)
 
-    valid = not any(i.severity == "error" and i.source == "local" for i in issues)
+    valid = not any(i.severity == "error" and i.source ==
+                    "local" for i in issues)
 
     return ValidationResult(
         valid=valid,
