@@ -51,11 +51,6 @@ Claude generates a structured S/O/A/P note. Every **medication** and **diagnosis
 <img width="919" height="811" alt="Screenshot 2026-06-30 at 12 01 37 AM" src="https://github.com/user-attachments/assets/e10c1dc2-d3cd-489a-961e-7eeb3ea1a437" />
 
 
-### 5. FHIR R4 export + validation
-On approval, the note becomes a FHIR R4 **document Bundle** (Composition + Encounter + Condition + MedicationRequest). It's validated **in-codebase** (`fhir.resources`) and, when configured, against a real **HAPI FHIR server's `$validate`**. Only validated codes/meds are included; invalid bundles are never posted.
-
-![FHIR Export](docs/screenshots/fhir-export.png)
-
 ---
 
 ## Engineering highlights
