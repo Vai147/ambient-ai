@@ -8,7 +8,9 @@ Built around one principle: **AI drafts, but nothing reaches the record unverifi
 
 ## Architecture
 
-![Architecture](docs/screenshots/architecture.png)
+![Architecture]
+<img width="1163" height="675" alt="Screenshot 2026-06-30 at 12 00 46 AM" src="https://github.com/user-attachments/assets/68215a0c-3706-4ac2-a50b-78fb2390dbb5" />
+
 
 The API never blocks on AI work. The backend persists the upload, drops a job on Redis, and returns immediately. A **Celery worker** does the heavy lifting — Whisper transcription, Claude SOAP generation, and hallucination detection — then writes results to Postgres. The frontend polls for status.
 
@@ -28,22 +30,26 @@ The API never blocks on AI work. The backend persists the upload, drops a job on
 ## How it works
 
 ### 1. Sign in
-![Login](docs/screenshots/login.png)
+<img width="1203" height="795" alt="Screenshot 2026-06-30 at 12 01 01 AM" src="https://github.com/user-attachments/assets/4f18faab-e5b2-4f33-aad2-62a6871b3cd5" />
+
 
 ### 2. Sessions dashboard
 Each encounter moves through a status lifecycle: `recording → transcribing → transcribed → generating → note_generated → approved`.
 
-![Sessions](docs/screenshots/sessions.png)
+<img width="1500" height="782" alt="Screenshot 2026-06-30 at 12 01 18 AM" src="https://github.com/user-attachments/assets/660d01df-9562-44c8-ae56-cdb1233c1a99" />
+
 
 ### 3. Transcript
 Audio is transcribed locally with Whisper, with per-turn timestamps.
 
-![Transcript](docs/screenshots/transcript.png)
+<img width="1153" height="803" alt="Screenshot 2026-06-30 at 12 01 29 AM" src="https://github.com/user-attachments/assets/c0268c82-a47a-4a89-ad92-251afe18d6a2" />
+
 
 ### 4. SOAP note + hallucination detection
 Claude generates a structured S/O/A/P note. Every **medication** and **diagnosis** is then verified against the transcript by an independent 3-layer check (exact → fuzzy → semantic embeddings). Anything that can't be grounded is **flagged** (highlighted) and the note is risk-scored — the clinician accepts / edits / rejects each section before approval.
 
-![SOAP Note](docs/screenshots/soap-note.png)
+<img width="919" height="811" alt="Screenshot 2026-06-30 at 12 01 37 AM" src="https://github.com/user-attachments/assets/e10c1dc2-d3cd-489a-961e-7eeb3ea1a437" />
+
 
 ### 5. FHIR R4 export + validation
 On approval, the note becomes a FHIR R4 **document Bundle** (Composition + Encounter + Condition + MedicationRequest). It's validated **in-codebase** (`fhir.resources`) and, when configured, against a real **HAPI FHIR server's `$validate`**. Only validated codes/meds are included; invalid bundles are never posted.
