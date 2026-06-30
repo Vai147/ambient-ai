@@ -73,7 +73,9 @@ cd backend && uvicorn app.main:app --reload --port 8000
 cd frontend && npm run dev
 ```
 
-Demo login: `clinician@demo.test` / `password`
+## hosted link:
+
+- https://frontend-production-6542.up.railway.app/
 
 ### Environment (see `.env.example`)
 `POSTGRES_*`, `JWT_SECRET`, `ANTHROPIC_API_KEY`, `ENVIRONMENT`, optional `HAPI_FHIR_URL` (e.g. `https://hapi.fhir.org/baseR4` for the deeper validation layer — synthetic data only).
@@ -85,12 +87,3 @@ cd backend && pytest --cov=app
 
 ---
 
-## Pipeline at a glance
-
-```
-record ─► POST /audio ─► backend saves to volume ─► POST /transcribe
-       ─► Redis queue ─► Celery worker:
-                           Whisper (transcribe) ─► pg
-                           Claude (SOAP) ─► hallucination grounding ─► ICD-10/RxNorm ─► pg
-       ─► clinician reviews + approves ─► FHIR R4 bundle ─► validate (local + HAPI) ─► EHR
-```
